@@ -1,10 +1,11 @@
-import processing.serial.*;
 import processing.video.*;
 
+import processing.serial.*;
+
 Serial arduino;
-String arduinoUSBPort = "/dev/tty.usbmodem1451";
+String arduinoUSBPort = "/dev/tty.usbmodem1411";
 Capture webcam;
-String cameraName = "name=Logitech Camera,size=1920x1080,fps=30";
+String cameraName = "name=Logitech Camera #2,size=1920x1080,fps=30";
 int pos = 0;
 boolean go = false;
 int currentPhoto = 0;

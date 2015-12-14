@@ -3,12 +3,13 @@ import processing.video.*;
 import processing.serial.*;
 
 Serial arduino;
-String arduinoUSBPort = "/dev/tty.usbmodem1411";
+String arduinoUSBPort = "COM3";
 Capture webcam;
-String cameraName = "name=Logitech Camera #2,size=1920x1080,fps=30";
+String cameraName = "name=Logitech HD Webcam C615,size=1920x1080,fps=30";
 int pos = 0;
 boolean go = false;
 int currentPhoto = 0;
+int numImages = 28;
 
 void setup(){
   size(1920, 1080);
@@ -46,11 +47,11 @@ void setup(){
 }
 
 void draw(){
-  if(webcam.available()){
-    webcam.read();
-  }
-  image(webcam, 0, 0);
-  if(pos < 150){
+  if(pos < numImages){
+    if(webcam.available()){
+      webcam.read();
+    }
+    image(webcam, 0, 0);
     pos += 2;
     String message = "G0 Y" + pos + "\n";
     byte[] messageBytes = message.getBytes();
@@ -60,5 +61,18 @@ void draw(){
     saveFrame("data/image_" + currentPhoto + ".jpg");
     println("Saving data/image_" + currentPhoto + ".jpg");
     currentPhoto += 1;
+  }
+  else if(pos == numImages){
+    int numPixelsToTake = 1920 / numImages;
+    int pixelLocation = 1920;
+    int startPixelToPullFrom = ((1920 / 2) - (numPixelsToTake / 2));
+    println("Pulling " + numPixelsToTake + " pixels from each image.");
+    for(int i = (numImages - 1); i >= 0; i++){
+      println("Pulling Image " + i);
+      pixelLocation -= numPixelsToTake;
+      println("Placing Image at " + pixelLocation);
+      for(int xPixel = startPixelToPullFrom; xPixel < (startPixelToPullFrom + numPixelsToTake); xPixel++){
+        for(int yPixel = 0; yPixel < 1080; yPixel++)
+    }
   }
 }

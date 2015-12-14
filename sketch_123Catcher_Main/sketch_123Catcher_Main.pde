@@ -103,21 +103,31 @@ void composite(){
     imageToLoad.loadPixels();
     if(images >= numImagesNeedingExtra){
       startXPixelToPlace = 1920 - (numXPixelsToLoad * (numImages - images));
+      println(startXPixelToPlace);
+      for(int yPixel = 0; yPixel < 1080; yPixel++){
+        for(int xPixel = 0; xPixel < numXPixelsToLoad; xPixel++){
+        xPixelToLoad = xPixel + startXPixelToLoad;
+        xPixelToPlace = xPixel + startXPixelToPlace;
+          pixelToLoad = (yPixel * 1920) + xPixelToLoad;
+          pixelToPlace = (yPixel * 1920) + xPixelToPlace;
+          pixels[pixelToPlace] = imageToLoad.pixels[pixelToLoad];
+        }
+      }
     }
     else{
-      startXPixelToPlace = (1920 - ((numXPixelsToLoad) * (numImages - images))) - (numImagesNeedingExtra - images);
-    }
-    println(startXPixelToPlace);
-    for(int yPixel = 0; yPixel < 1080; yPixel++){
-      for(int xPixel = 0; xPixel < numXPixelsToLoad; xPixel++){
-      xPixelToLoad = xPixel + startXPixelToLoad;
-      xPixelToPlace = xPixel + startXPixelToPlace;
-        pixelToLoad = (yPixel * 1920) + xPixelToLoad;
-        pixelToPlace = (yPixel * 1920) + xPixelToPlace;
-        pixels[pixelToPlace] = imageToLoad.pixels[pixelToLoad];
+      startXPixelToPlace = (1920 - ((numXPixelsToLoad) * (numImages - images))) - (numImagesNeedingExtra - images);      println(startXPixelToPlace);
+      for(int yPixel = 0; yPixel < 1080; yPixel++){
+        for(int xPixel = 0; xPixel < numXPixelsToLoad + 1; xPixel++){
+        xPixelToLoad = xPixel + startXPixelToLoad;
+        xPixelToPlace = xPixel + startXPixelToPlace;
+          pixelToLoad = (yPixel * 1920) + xPixelToLoad;
+          pixelToPlace = (yPixel * 1920) + xPixelToPlace;
+          pixels[pixelToPlace] = imageToLoad.pixels[pixelToLoad];
+        }
       }
     }
     updatePixels();
   }
+  saveFrame("data/finalPano.jpg");
   doComposite = false;
 }

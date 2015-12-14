@@ -1,15 +1,16 @@
 import processing.video.*;
-
 import processing.serial.*;
 
 Serial arduino;
-String arduinoUSBPort = "COM3";
+String arduinoUSBPort = "COM7";
 Capture webcam;
 String cameraName = "name=Logitech HD Webcam C615,size=1920x1080,fps=30";
 int pos = 0;
 boolean go = false;
 int currentPhoto = 0;
 int numImages = 28;
+boolean doTakePhoto = true;
+boolean doComposite = false;
 
 void setup(){
   size(1920, 1080);
@@ -43,10 +44,22 @@ void setup(){
       }
     }
   }
+  loadPixels();
   println("Done setting up!");
 }
 
 void draw(){
+  if(doTakePhoto){
+    println("Take Photos...");
+    takePhotos();
+  }
+  else if(doComposite){
+    println("Compositing...");
+    composite();
+  }
+}
+
+void takePhotos(){
   if(pos < numImages){
     if(webcam.available()){
       webcam.read();
@@ -62,17 +75,35 @@ void draw(){
     println("Saving data/image_" + currentPhoto + ".jpg");
     currentPhoto += 1;
   }
-  else if(pos == numImages){
-    int numPixelsToTake = 1920 / numImages;
-    int pixelLocation = 1920;
-    int startPixelToPullFrom = ((1920 / 2) - (numPixelsToTake / 2));
-    println("Pulling " + numPixelsToTake + " pixels from each image.");
-    for(int i = (numImages - 1); i >= 0; i++){
-      println("Pulling Image " + i);
-      pixelLocation -= numPixelsToTake;
-      println("Placing Image at " + pixelLocation);
-      for(int xPixel = startPixelToPullFrom; xPixel < (startPixelToPullFrom + numPixelsToTake); xPixel++){
-        for(int yPixel = 0; yPixel < 1080; yPixel++)
+  else{
+    doTakePhoto = false;
+    doComposite = true;
+  }
+}
+
+void composite(){
+  PImage imageToLoad;
+  int numXPixelsToLoad = 1920 / numImages;
+  int startXPixelToLoad = ((1920 / 2) - (numXPixelsToLoad / 2));
+  int startXPixelToPlace = 1920;
+  int xPixelToLoad;
+  int xPixelToPlace;
+  int pixelToLoad;
+  int pixelToPlace;
+  for(int images = (numImages - 1); images >= 0; images--){
+    println("Loading image: " + images);
+    imageToLoad = loadImage("data/image_" + images + ".jpg");
+    imageToLoad.loadPixels();
+    startXPixelToPlace = 1920 - (numXPixelsToLoad * images);
+    for(int xPixel = 0; xPixel < numXPixelsToLoad; xPixel++){
+      xPixelToLoad = xPixel + startXPixelToLoad;
+      xPixelToPlace = xPixel + startXPixelToPlace;
+      for(int yPixel = 0; yPixel < 1080; yPixel++){
+        pixelToLoad = (yPixel * xPixelToLoad) + xPixelToLoad;
+        pixelToPlace = (yPixel * xPixelToPlace) + xPixelToPlace;
+        pixels[pixelToPlace] = imageToLoad.pixels[pixelToLoad];
+        updatePixels();
+      }
     }
   }
 }

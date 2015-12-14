@@ -2,15 +2,15 @@ import processing.video.*;
 import processing.serial.*;
 
 Serial arduino;
-String arduinoUSBPort = "COM7";
+String arduinoUSBPort = "COM3";
 Capture webcam;
 String cameraName = "name=Logitech HD Webcam C615,size=1920x1080,fps=30";
 int pos = 0;
 boolean go = false;
 int currentPhoto = 0;
 int numImages = 400;
-boolean doTakePhoto = false;
-boolean doComposite = true;
+boolean doTakePhoto = true;
+boolean doComposite = false;
 int stepIncrementer = 1;
 int serialDelay = 1000;
 

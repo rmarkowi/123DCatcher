@@ -128,6 +128,6 @@ void composite(){
     }
     updatePixels();
   }
-  saveFrame("data/finalPano.jpg");
+  saveFrame("finalPano.jpg");
   doComposite = false;
 }

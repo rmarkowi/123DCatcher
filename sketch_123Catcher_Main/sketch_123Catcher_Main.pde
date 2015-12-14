@@ -8,9 +8,10 @@ String cameraName = "name=Logitech HD Webcam C615,size=1920x1080,fps=30";
 int pos = 0;
 boolean go = false;
 int currentPhoto = 0;
-int numImages = 28;
+int numImages = 110;
 boolean doTakePhoto = true;
 boolean doComposite = false;
+int stepIncrementer = 1;
 
 void setup(){
   size(1920, 1080);
@@ -60,12 +61,12 @@ void draw(){
 }
 
 void takePhotos(){
-  if(pos < numImages){
+  if(pos < (numImages * stepIncrementer)){
     if(webcam.available()){
       webcam.read();
     }
     image(webcam, 0, 0);
-    pos += 2;
+    pos += stepIncrementer;
     String message = "G0 Y" + pos + "\n";
     byte[] messageBytes = message.getBytes();
     arduino.write(messageBytes);
@@ -85,25 +86,27 @@ void composite(){
   PImage imageToLoad;
   int numXPixelsToLoad = 1920 / numImages;
   int startXPixelToLoad = ((1920 / 2) - (numXPixelsToLoad / 2));
-  int startXPixelToPlace = 1920;
+  int startXPixelToPlace = 1919;
   int xPixelToLoad;
   int xPixelToPlace;
   int pixelToLoad;
   int pixelToPlace;
-  for(int images = (numImages - 1); images >= 0; images--){
+  println("Number of Pixels to Load: " + numXPixelsToLoad);
+  for(int images = (numImages - 2); images >= 0; images--){
     println("Loading image: " + images);
     imageToLoad = loadImage("data/image_" + images + ".jpg");
     imageToLoad.loadPixels();
-    startXPixelToPlace = 1920 - (numXPixelsToLoad * images);
-    for(int xPixel = 0; xPixel < numXPixelsToLoad; xPixel++){
+    startXPixelToPlace = 1920 - (numXPixelsToLoad * (numImages - images));
+    for(int yPixel = 0; yPixel < 1080; yPixel++){
+      for(int xPixel = 0; xPixel < numXPixelsToLoad; xPixel++){
       xPixelToLoad = xPixel + startXPixelToLoad;
       xPixelToPlace = xPixel + startXPixelToPlace;
-      for(int yPixel = 0; yPixel < 1080; yPixel++){
-        pixelToLoad = (yPixel * xPixelToLoad) + xPixelToLoad;
-        pixelToPlace = (yPixel * xPixelToPlace) + xPixelToPlace;
+        pixelToLoad = (yPixel * 1920) + xPixelToLoad;
+        pixelToPlace = (yPixel * 1920) + xPixelToPlace;
         pixels[pixelToPlace] = imageToLoad.pixels[pixelToLoad];
-        updatePixels();
       }
     }
+    updatePixels();
   }
+  doComposite = false;
 }

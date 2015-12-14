@@ -8,10 +8,11 @@ String cameraName = "name=Logitech HD Webcam C615,size=1920x1080,fps=30";
 int pos = 0;
 boolean go = false;
 int currentPhoto = 0;
-int numImages = 110;
-boolean doTakePhoto = true;
-boolean doComposite = false;
+int numImages = 400;
+boolean doTakePhoto = false;
+boolean doComposite = true;
 int stepIncrementer = 1;
+int serialDelay = 1000;
 
 void setup(){
   size(1920, 1080);
@@ -40,7 +41,7 @@ void setup(){
           webcam.read();
         }
         image(webcam, 0, 0);
-        delay(2000);
+        delay(serialDelay);
         break;
       }
     }
@@ -85,6 +86,10 @@ void takePhotos(){
 void composite(){
   PImage imageToLoad;
   int numXPixelsToLoad = 1920 / numImages;
+  float fnumXPixelsToLoad = 1920.0 / numImages;
+  println("fnumXPixelsToLoad: " + fnumXPixelsToLoad);
+  int numImagesNeedingExtra = (numImages - (1920 - (numXPixelsToLoad * numImages))) * 4;
+  println("numImagesNeedingExtra: " + numImagesNeedingExtra);
   int startXPixelToLoad = ((1920 / 2) - (numXPixelsToLoad / 2));
   int startXPixelToPlace = 1919;
   int xPixelToLoad;
@@ -92,11 +97,17 @@ void composite(){
   int pixelToLoad;
   int pixelToPlace;
   println("Number of Pixels to Load: " + numXPixelsToLoad);
-  for(int images = (numImages - 2); images >= 0; images--){
+  for(int images = (numImages - 1); images >= 0; images--){
     println("Loading image: " + images);
     imageToLoad = loadImage("data/image_" + images + ".jpg");
     imageToLoad.loadPixels();
-    startXPixelToPlace = 1920 - (numXPixelsToLoad * (numImages - images));
+    if(images >= numImagesNeedingExtra){
+      startXPixelToPlace = 1920 - (numXPixelsToLoad * (numImages - images));
+    }
+    else{
+      startXPixelToPlace = (1920 - ((numXPixelsToLoad) * (numImages - images))) - (numImagesNeedingExtra - images);
+    }
+    println(startXPixelToPlace);
     for(int yPixel = 0; yPixel < 1080; yPixel++){
       for(int xPixel = 0; xPixel < numXPixelsToLoad; xPixel++){
       xPixelToLoad = xPixel + startXPixelToLoad;
